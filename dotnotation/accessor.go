@@ -1,6 +1,9 @@
 package dotnotation
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 // Accessor provides two methods, Get and Set, that can be configured to handle custom data structures via the
 // exported properties, Parser, Getter, and Setter.
@@ -23,12 +26,15 @@ func (p Accessor) Set(target interface{}, key string, value interface{}) error {
 		}
 
 		// create the missing property if it does not exist
-		var err error
-		if _, ok := target[property]; !ok {
-			target[property]= interface{}
+		if _, ok := target.(map[string]interface{})[property]; !ok {
+			if m, ok := target.(map[string]interface{}); !ok {
+				return fmt.Errorf("type conversion failed")
+			} else {
+				m[property] = map[string]interface{}{}
+				target = m[property]
+			}
 		}
 	}
-
 	return errors.New("no properties parsed from key: " + key)
 }
 
