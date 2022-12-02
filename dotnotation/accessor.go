@@ -29,14 +29,15 @@ func (p Accessor) Set(target interface{}, key string, value interface{}) error {
 			return p.setter(target, property, value)
 		}
 
-		// create the missing property if it does not exist
-		if _, ok := target.(map[string]interface{})[property]; !ok {
-			if m, ok := target.(map[string]interface{}); !ok {
-				return fmt.Errorf("type conversion failed")
-			} else {
-				m[property] = map[string]interface{}{}
-				target = m[property]
+		// attempt to get the next level
+		if targetMap, ok := target.(map[string]interface{}); ok {
+			// create the missing property if it does not exist
+			if _, ok := targetMap[property]; !ok {
+				targetMap[property] = map[string]interface{}{}
 			}
+			target = targetMap[property]
+		} else {
+			return fmt.Errorf("type conversion failed")
 		}
 	}
 	return errors.New("no properties parsed from key: " + key)
