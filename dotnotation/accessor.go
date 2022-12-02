@@ -22,7 +22,7 @@ func (p Accessor) Set(target interface{}, key string, value interface{}) error {
 			return p.setter(target, property, value)
 		}
 
-		// attempt to get the next level, so we can set the last property
+		// create the missing property if it does not exist
 		var err error
 		if _, ok := target[property]; !ok {
 			target[property]= interface{}
