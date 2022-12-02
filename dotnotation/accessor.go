@@ -14,6 +14,8 @@ type Accessor struct {
 	Setter func(target interface{}, property string, value interface{}) error
 	// Parser converts a given key into a list of properties to access in order to get or set.
 	Parser func(key string) []string
+	// ValueParser type casts the value received from a Get call.
+	ValueParser func(value interface{}) (interface{}, error)
 }
 
 func (p Accessor) Set(target interface{}, key string, value interface{}) error {
@@ -60,7 +62,11 @@ func (p Accessor) Get(target interface{}, key string) (interface{}, error) {
 
 func (p Accessor) getter(target interface{}, property string) (interface{}, error) {
 	if p.Getter == nil {
-		return DefaultGetter(target, property)
+		val, err := DefaultGetter(target, property)
+		if err != nil {
+			return nil, err
+		}
+		return p.valueParser(val)
 	}
 
 	return p.Getter(target, property)
@@ -80,4 +86,12 @@ func (p Accessor) parser(key string) []string {
 	}
 
 	return p.Parser(key)
+}
+
+func (p Accessor) valueParser(value interface{}) (interface{}, error) {
+	if p.ValueParser == nil {
+		return DefaultValueParser(value)
+	}
+
+	return p.ValueParser(value)
 }

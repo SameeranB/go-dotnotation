@@ -102,3 +102,8 @@ func DefaultSetter(target interface{}, property string, value interface{}) error
 func DefaultParser(key string) []string {
 	return strings.Split(key, ".")
 }
+
+// DefaultValueParser simply returns the value as received.
+func DefaultValueParser(value interface{}) (interface{}, error) {
+	return value, nil
+}
