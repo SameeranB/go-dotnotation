@@ -16,6 +16,8 @@ type Accessor struct {
 	Parser func(key string) []string
 	// ValueParser type casts the value received from a Get call.
 	ValueParser func(value interface{}) (interface{}, error)
+	// HandlePropertyNotFoundInMapError is called when a property is not found in a map.
+	HandlePropertyNotFoundInMapError func(target interface{}, property string) (interface{}, error)
 }
 
 func (p Accessor) Set(target interface{}, key string, value interface{}) error {
@@ -64,6 +66,12 @@ func (p Accessor) getter(target interface{}, property string) (interface{}, erro
 	if p.Getter == nil {
 		val, err := DefaultGetter(target, property)
 		if err != nil {
+			if _, ok := err.(PropertyNotFoundInMapError); ok {
+				val, err = p.HandlePropertyNotFoundInMapError(target, property)
+				if err != nil {
+					return nil, err
+				}
+			}
 			return nil, err
 		}
 		return p.valueParser(val)

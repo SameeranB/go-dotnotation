@@ -34,7 +34,7 @@ func DefaultGetter(target interface{}, property string) (interface{}, error) {
 		value, ok := v[property]
 
 		if !ok {
-			return nil, fmt.Errorf("cannot get non-existent property '%s' on a map", property)
+			return nil, PropertyNotFoundInMapError{property: property}
 		}
 
 		return value, nil
