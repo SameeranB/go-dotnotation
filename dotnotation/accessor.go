@@ -24,9 +24,8 @@ func (p Accessor) Set(target interface{}, key string, value interface{}) error {
 
 		// attempt to get the next level, so we can set the last property
 		var err error
-		target, err = p.getter(target, property)
-		if err != nil {
-			return err
+		if _, ok := target[property]; !ok {
+			target[property]= interface{}
 		}
 	}
 
